@@ -1,3 +1,9 @@
+![Status](https://img.shields.io/badge/Project-Portfolio-darkgreen)
+![Tech](https://img.shields.io/badge/Arduino-UNO-blue)
+![Servos](https://img.shields.io/badge/Control-Servo%20Motors-orange)
+![License](https://img.shields.io/badge/License-MIT-lightgrey)
+
+
 # Prosthetic Hand – Portfolio Edition
 
 This repository contains the **structured and refined portfolio version** of a prosthetic robotic hand project that I originally worked on as a collaborator in a shared repository.
