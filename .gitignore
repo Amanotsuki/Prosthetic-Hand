@@ -1,0 +1,35 @@
+# System files
+.DS_Store
+Thumbs.db
+
+# VS Code settings
+.vscode/
+
+# Logs
+*.log
+
+# Temporary / cache
+*.tmp
+*.cache
+~$*
+
+# Build / generated
+build/
+out/
+dist/
+
+# Android APK (optional, keep if required)
+*.apk
+*.aab
+
+# Backup files
+*.bak
+*.old
+
+# PDF exports temporary
+*.aux
+*.toc
+*.out
+
+# IDE-specific
+.idea/
