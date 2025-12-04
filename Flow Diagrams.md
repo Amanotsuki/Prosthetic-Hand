@@ -1,3 +1,10 @@
+# Flow Diagrams
+
+---
+
+## 🧠 High-Level System Flow
+
+```mermaid
 flowchart LR
 
 subgraph INPUTS[User Inputs]
@@ -20,6 +27,8 @@ STATE --> APP:::optional
 
 classDef optional fill:#f5f5f5,stroke:#999,stroke-dasharray: 3 3;
 
+
+
 flowchart TD
 
 A1[User sends command\nfrom Smartphone App] --> B1[HC-05 receives\nBluetooth packet]
@@ -33,6 +42,8 @@ H1 --> I1[Update position\nand state variables]
 I1 --> J1[Send status/ACK\nback to Bluetooth module]
 J1 --> K1[User sees confirmation\nin mobile app UI]
 
+
+
 flowchart TD
 
 A2[User presses push button] --> B2[Arduino detects\nstate change]
@@ -43,6 +54,8 @@ E2 --> F2[Compute next servo angles\nbased on logic rules]
 F2 --> G2[Move servos gradually\n(PWM stepping)]
 G2 --> H2[Update position variables]
 H2 --> I2[Return to Idle\n(await next input)]
+
+
 
 flowchart TD
 
@@ -103,4 +116,6 @@ S5 --> HAND
 
 ARD --> LED
 HAND --> LED
+
+
 
