@@ -1,144 +1,88 @@
-
-# **1. High-Level Data Flow**
-
-```mermaid
 flowchart LR
-A[User Input Button Press or Bluetooth Command] --> B[Arduino Control Logic]
-B --> C[Servo Command Generation PWM]
-C --> D[Servo Actuation Tendon Pulling]
-D --> E[Position Feedback Software State]
-E --> B
-B --> F[LED Indicators System Status]
-```
 
----
+subgraph INPUTS[User Inputs]
+  BTN[Push Button\n(Manual Mode)]
+  APP[Smartphone App\n(Bluetooth Mode)]
+end
 
-# **2. Bluetooth Command Flow**
+APP --> BT[HC-05 Module\nBluetooth to Serial]
+BTN --> ARD[Arduino Firmware\n(State Machine)]
 
-```mermaid
-flowchart LR
-A1[User Sends Command from Smartphone App] --> B1[HC-05 Receives Bluetooth Data]
-B1 --> C1[HC-05 Converts to Serial and Sends to Arduino RX]
-C1 --> D1[Arduino Reads Serial Buffer]
-D1 --> E1[Character Compared with Command Definitions]
-E1 --> F1[Execute Matching Servo Function]
-F1 --> G1[Servos Move Accordingly]
-G1 --> H1[Arduino Sends Confirmation via HC-05]
-H1 --> I1[User Sees Feedback in App]
-```
+BT --> ARD
 
----
+ARD --> PWM[PWM Signal\nGeneration]
+PWM --> SERVOS[Finger Servos\n(Thumb–Little)]
+SERVOS --> HAND[3D-Printed Hand\nTendon-Driven Fingers]
 
-# **3. Manual Control Flow**
+ARD --> LED[Status LEDs\n(Red / Blue)]
+ARD --> STATE[Software State\n& Position Tracking]
+STATE --> APP:::optional
 
-```mermaid
-flowchart LR
-A2[User Presses Push Button] --> B2[Arduino Detects Button State Change]
-B2 --> C2[Check Current Finger Positions]
-C2 --> D2[Determine Action Open or Close]
-D2 --> E2[Execute Coordinated Movement Sequence]
-E2 --> F2[Update Position Variables]
-F2 --> G2[Return to Idle State]
-```
+classDef optional fill:#f5f5f5,stroke:#999,stroke-dasharray: 3 3;
 
----
-
-```mermaid
 flowchart TD
 
-%% NODES
-PS[Power Supply\n6V / 7.4V Battery]
-PB[Push Button\nManual Input]
-BT[Bluetooth HC-05\nWireless Input]
-SW[Slide Switch\nMode Selector]
-ARD[Arduino Uno\nCentral Processing Unit]
-PWM[PWM Signal\nGeneration]
-DRV[Motor Driver\nCircuit]
+A1[User sends command\nfrom Smartphone App] --> B1[HC-05 receives\nBluetooth packet]
+B1 --> C1[HC-05 forwards data\nas Serial to Arduino RX]
+C1 --> D1[Arduino reads\nSerial buffer]
+D1 --> E1[Parse command &\nmatch with valid actions]
+E1 --> F1[Update state machine:\nSelected finger or gesture]
+F1 --> G1[Generate target angles\nfor selected servos]
+G1 --> H1[Drive servos via PWM\nSmooth motion profile]
+H1 --> I1[Update position\nand state variables]
+I1 --> J1[Send status/ACK\nback to Bluetooth module]
+J1 --> K1[User sees confirmation\nin mobile app UI]
 
-S1[Servo Motor\nThumb]
-S2[Servo Motor\nIndex]
-S3[Servo Motor\nMiddle]
-S4[Servo Motor\nRing]
-S5[Servo Motor\nLittle]
+flowchart TD
 
-HAND[3D Printed Hand\nTendon-Driven Fingers]
-LED[Status LEDs\nRed & Blue\nPosition Indicators]
+A2[User presses push button] --> B2[Arduino detects\nstate change]
+B2 --> C2[Debounce and validate input]
+C2 --> D2[Check current mode and\nfinger position state]
+D2 --> E2[Determine action:\nOpen / Close / Pattern Shift]
+E2 --> F2[Compute next servo angles\nbased on logic rules]
+F2 --> G2[Move servos gradually\n(PWM stepping)]
+G2 --> H2[Update position variables]
+H2 --> I2[Return to Idle\n(await next input)]
 
-%% CONNECTIONS
-PS --> PB
-PS --> BT
-PS --> SW
-PS --> ARD
+flowchart TD
+
+%% -------- NODES --------
+subgraph PWR[Power Supply]
+  PS[6V / 7.4V Battery]
+end
+
+subgraph INPUT[User Input Interfaces]
+  PB[Push Button\nManual Input]
+  BT[HC-05 Module\nBluetooth Interface]
+  SW[Slide Switch\nMode Selector]
+end
+
+subgraph CTRL[Control System]
+  ARD[Arduino Uno\nMain Controller]
+  PWM[PWM Output\nGeneration Block]
+  DRV[Servo Power /\nDriver Stage]
+end
+
+subgraph ACT[Actuation System]
+  S1[Servo: Thumb]
+  S2[Servo: Index]
+  S3[Servo: Middle]
+  S4[Servo: Ring]
+  S5[Servo: Little Finger]
+  HAND[3D-Printed Prosthetic Hand\nTendon Driven Mechanism]
+end
+
+subgraph FEEDBACK[Feedback & Indicators]
+  LED[Status LEDs\n(Red / Blue)]
+end
+
+%% -------- CONNECTIONS --------
+PS --> INPUT
+PS --> CTRL
+PS --> ACT
 
 PB --> SW
 BT --> SW
-
-SW -->|Mode Selection| ARD
-
-ARD --> PWM
-PWM --> DRV
-ARD --> DRV
-
-DRV --> S1
-DRV --> S2
-DRV --> S3
-DRV --> S4
-DRV --> S5
-
-S1 --> HAND
-S2 --> HAND
-S3 --> HAND
-S4 --> HAND
-S5 --> HAND
-
-ARD --> LED
-HAND --> LED
-
-%% COLORS
-style PS fill:#F9E79F,stroke:#000,color:#000
-style PB fill:#D6EAF8,stroke:#000
-style BT fill:#D6EAF8,stroke:#000
-style SW fill:#A9CCE3,stroke:#000
-style ARD fill:#A3E4D7,stroke:#000
-style PWM fill:#A3E4D7,stroke:#000
-style DRV fill:#A3E4D7,stroke:#000
-style S1 fill:#F5B7B1,stroke:#000
-style S2 fill:#F5B7B1,stroke:#000
-style S3 fill:#F5B7B1,stroke:#000
-style S4 fill:#F5B7B1,stroke:#000
-style S5 fill:#F5B7B1,stroke:#000
-style HAND fill:#FADBD8,stroke:#000
-style LED fill:#D6DBDF,stroke:#000
-```
-
-```mermaid
-flowchart TD
-
-PS[Power Supply 6V or 7.4V Battery]
-PB[Push Button Manual Input]
-BT[Bluetooth HC-05 Wireless Input]
-SW[Slide Switch Mode Selector]
-ARD[Arduino Uno Central Processing Unit]
-PWM[PWM Signal Generation]
-DRV[Motor Driver Circuit]
-
-S1[Servo Motor Thumb]
-S2[Servo Motor Index]
-S3[Servo Motor Middle]
-S4[Servo Motor Ring]
-S5[Servo Motor Little]
-
-HAND[3D Printed Hand Tendon-Driven Fingers]
-LED[Status LEDs Red and Blue Position Indicators]
-
-PS --> PB
-PS --> BT
-PS --> SW
-PS --> ARD
-
-PB --> SW
-BT --> SW
-
 SW --> ARD
 
 ARD --> PWM
@@ -159,4 +103,4 @@ S5 --> HAND
 
 ARD --> LED
 HAND --> LED
-```
+
